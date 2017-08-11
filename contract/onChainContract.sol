@@ -33,6 +33,21 @@ contract onChainContract {
         _;
     }
     
+    event newRequest(uint round, address user, string request);
+    event newFinalResult(uint round, bytes32 result);
+    
+    function getResultTotalCount(uint round) constant returns (uint) {
+        return results[round].count;
+    }
+    
+    function getResultBy(uint round, address oracle) constant returns (bytes32) {
+        return results[round].from[oracle];
+    }
+    
+    function getResultCount(uint round, bytes32 result) constant returns (uint) {
+        return results[round].candidateCount[result];
+    }
+    
     function onChainContract(address[] _oracles, bytes32 _imageHash, bytes32 _storageHash) {
         user = msg.sender;
         imageHash = _imageHash;
@@ -44,6 +59,7 @@ contract onChainContract {
     
     function submitRequest(string _request) onlyUser {
         requests.push(_request);
+        newRequest(currentRound, msg.sender, _request);
     }
     function submitResult(bytes32 _result) onlyOracles {
         results[currentRound].from[msg.sender] = _result;
@@ -64,6 +80,7 @@ contract onChainContract {
             }
         }
         finalResults[currentRound] = finalResult;
+        newFinalResult(currentRound, finalResult);
         currentRound += 1;
     }
 }
