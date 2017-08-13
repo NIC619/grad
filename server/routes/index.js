@@ -4,26 +4,33 @@ var router = express.Router();
 var Web3 = require('Web3');
 var web3 = new Web3();
 
+var _title = "";
+
 /* web3 set up */
 if(!web3.currentProvider)
 	web3.setProvider(new web3.providers.HttpProvider('http://localhost:8545'));
 
-//deploy contract
-var deployContract = require("./functions/deployOnChainContract.js");
-var abiOnChain = JSON.parse( fs.readFileSync('../compile/onChainContract.abi', 'utf-8') );
-var binaryOnChain = fs.readFileSync('../compile/onChainContract.bytecode', 'utf-8');
-var user = web3.eth.accounts[0];
-var oracles = [web3.eth.accounts[1], web3.eth.accounts[2], web3.eth.accounts[3]];
-var imageHash = web3.sha3("image");
-var storageHash = web3.sha3("storage");
 var indexContractAddr = '';
 var indexContractABI = JSON.parse( fs.readFileSync('../../compile/onChainContract.abi', 'utf-8') );
-deployContract.deploy(abi, binaryOnChain, oracles, imageHash, storageHash, user, function(addr){
-	indexContractAddr = addr;
-});
+var user = web3.eth.accounts[0];
+var oracles = [web3.eth.accounts[1], web3.eth.accounts[2], web3.eth.accounts[3]];
 
 
 /* DEVELOPEMENT FUNCTIONS */
+router.get('/deploy', function(req, res) {
+	//deploy contract
+	var deployContract = require("./functions/deployOnChainContract.js");
+	var abiOnChain = JSON.parse( fs.readFileSync('../compile/onChainContract.abi', 'utf-8') );
+	var binaryOnChain = fs.readFileSync('../compile/onChainContract.bytecode', 'utf-8');
+	var imageHash = web3.sha3("image");
+	var storageHash = web3.sha3("storage");
+	
+	deployContract.deploy(web3, abi, binaryOnChain, oracles, imageHash, storageHash, user, function(addr){
+		indexContractAddr = addr;
+		res.render('index', {title: _title, pollRecordList: []});
+	});
+});
+
 router.get('/delete', function(req, res) {
 	pollRecords.find().remove().exec();
 	res.render('index', {title: _title, pollRecordList: []});
