@@ -30,11 +30,6 @@ router.get('/deploy', function(req, res) {
 		res.render('index', {title: _title, pollRecordList: []});
 	});
 });
-
-router.get('/delete', function(req, res) {
-	pollRecords.find().remove().exec();
-	res.render('index', {title: _title, pollRecordList: []});
-});
 /*                       */
 
 
@@ -59,9 +54,6 @@ router.get('/poll', function(req, res) {
 /*                   */
 
 /* create new poll */
-router.get('/newPoll', function(req, res) {
-	res.render('newPoll', {title: _title})
-});
 router.post('/newPoll', function(req, res) {
 	var newPollRecord = new pollRecords();
 	//console.log(req.body.name);
